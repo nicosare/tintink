@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # Быстрая база данных для профилей, валюты и структуры островов
+  postgres:
+    image: postgres:16-alpine
+    container_name: tintink_db
+    restart: always
+    environment:
+      POSTGRES_USER: tintink_admin
+      POSTGRES_PASSWORD: SecretPassword2026  # Обязательно замените на свой пароль позже
+      POSTGRES_DB: tintink_main
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          memory: 300M # Ограничиваем память, чтобы сервер не завис
+
+  # Кэш в оперативной памяти для хранения координат пикселей в реальном времени
+  redis:
+    image: redis:7-alpine
+    container_name: tintink_cache
+    restart: always
+    command: redis-server --maxmemory 100mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          memory: 150M
+
+volumes:
+  pgdata:
